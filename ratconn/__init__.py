@@ -5,7 +5,7 @@ import requests
 from pandas import DataFrame
 from bs4 import BeautifulSoup
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 #%%
 curl_cmd = "curl 'http://neuroviisas.med.uni-rostock.de/connectome/index.php' \
