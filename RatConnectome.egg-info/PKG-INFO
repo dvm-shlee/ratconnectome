@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: RatConnectome
+Version: 0.0.1
+Summary: Python API for neuroVIISAS Rat Connectome Project
+Home-page: UNKNOWN
+Author: SungHo Lee
+Author-email: shlee@unc.edu
+License: GNLv3
+Description: UNKNOWN
+Keywords: Python Rat Connectome
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Framework :: Jupyter
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.7

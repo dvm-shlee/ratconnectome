@@ -1,0 +1,8 @@
+README.md
+setup.py
+RatConnectome.egg-info/PKG-INFO
+RatConnectome.egg-info/SOURCES.txt
+RatConnectome.egg-info/dependency_links.txt
+RatConnectome.egg-info/requires.txt
+RatConnectome.egg-info/top_level.txt
+ratconn/__init__.py

@@ -71,6 +71,41 @@ def parse_table(table):
     return output
 
 
+def get_conn_matrix(*rois):
+    itf = Interface(abbr=True, verbose=False)
+    columns = ['{}-left'.format(roi) for roi in rois]
+    columns += ['{}-right'.format(roi) for roi in rois]
+    output_df = DataFrame(index=columns, columns=columns)
+    input_df = DataFrame(index=columns, columns=columns)
+    sides = ['left', 'right']
+    for roi in rois:
+        for i, s in enumerate(sides):
+            itf.search(roi)
+            row_item = '{}-{}'.format(roi, s)
+            info = itf.get_info(i)
+            ### output_matrix
+            o_df = info.output_to
+            o_df = o_df.loc[o_df['Abbr'].isin(list(rois))].reset_index(drop=True)
+            i_df = info.input_from
+            i_df = i_df.loc[i_df['Abbr'].isin(list(rois))].reset_index(drop=True)
+            for j, row in o_df.iterrows():
+                if row.Side == 'ipsi':
+                    side = sides[i]
+                else:
+                    side = sides[i-1]
+                col_item = '{}-{}'.format(row.Abbr, side)
+                output_df.loc[row_item, col_item] = float(row.Weight)
+            for j, row in i_df.iterrows():
+                if row.Side == 'ipsi':
+                    side = sides[i]
+                else:
+                    side = sides[i-1]
+                col_item = '{}-{}'.format(row.Abbr, side)
+                input_df.loc[row_item, col_item] = float(row.Weight)
+    result = output_df.where(output_df > input_df, input_df).fillna(output_df)
+    return result.fillna(0)
+
+
 class Info():
     def __init__(self, url, *args, **kwargs):
         self.verbose = kwargs['verbose'] \
