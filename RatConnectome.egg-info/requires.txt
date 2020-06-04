@@ -1,4 +1,0 @@
-uncurl
-requests
-pandas
-bs4
