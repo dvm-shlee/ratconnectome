@@ -7,22 +7,21 @@ from bs4 import BeautifulSoup
 
 __version__ = '0.0.2'
 
-#%%
-curl_cmd = "curl 'http://neuroviisas.med.uni-rostock.de/connectome/index.php' \
--XPOST \
--H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
--H 'Content-Type: application/x-www-form-urlencoded' \
--H 'Origin: http://neuroviisas.med.uni-rostock.de' \
--H 'Content-Length: 94' \
--H 'Accept-Language: en-us' \
--H 'Upgrade-Insecure-Requests: 1' \
--H 'Host: neuroviisas.med.uni-rostock.de' \
--H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Safari/605.1.15' \
--H 'Referer: http://neuroviisas.med.uni-rostock.de/connectome/index.php' \
--H 'Accept-Encoding: gzip, deflate' \
--H 'Connection: keep-alive' \
---data 'searchOpt=starts&searchSide=searchAll&searchNameText=&searchName=Search+name&searchAbbrevText='"
-
+url = "https://neuroviisas.med.uni-rostock.de/connectome/index.php"
+headers = {"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+           "Accept-Language": "en-US,en;q=0.9",
+           "Cache-Control": "max-age=0",
+           "Connection": "keep-alive",
+           "Content-Type": "application/x-www-form-urlencoded",
+           "DNT": "1",
+           "Origin": "https://neuroviisas.med.uni-rostock.de",
+           "Referer": "https://neuroviisas.med.uni-rostock.de/connectome/index.php",
+           "Sec-Fetch-Dest": "document",
+           "Sec-Fetch-Mode": "navigate",
+           "Sec-Fetch-Site": "same-origin",
+           "Sec-Fetch-User": "?1",
+           "Upgrade-Insecure-Requests": "1",
+           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36 Edg/83.0.478.44"}
 
 def parse_request_cmd(curl_cmd):
     request_cmd = uncurl.parse(curl_cmd)
@@ -154,12 +153,13 @@ class Info():
         else:
             self.source = 'output'
 
+
 class Interface():
     def __init__(self, roi=None, **kwargs):
         sides = ['searchAll', 'left', 'right']
         options = ['starts', 'contains']
 
-        self.headers, self.url = parse_request_cmd(curl_cmd)
+        self.headers, self.url = headers, url
         self._base_url = os.path.dirname(self.url)
         self.side = kwargs['side'].lower() \
             if ('side' in kwargs.keys() and kwargs['side'] in sides) else 'searchAll'
@@ -176,7 +176,8 @@ class Interface():
 
     def search(self, roi):
         self.roi = roi
-        html = requests.post(url=self.url, data=self._get_data_dict()).content
+        html = requests.post(url=self.url, data=self._get_data_dict(),
+                             headers=self.headers).content
         table_content = parse_tables_content(html)
         self.results = parse_table(table_content)
 
@@ -226,17 +227,13 @@ class Interface():
                 print('Search with abbreviation.')
 
     def _get_data_dict(self):
-        output = dict(searchOpt=self.option,
-                      searchSide=self.side)
         if self.abbr is True:
-            output['searchNameText'] = None
-            output['searchAbbrevText'] = self.roi
-            output['searchAbbrev'] = 'Search+abbreviation'
+            data=f'searchOpt=starts&searchSide=searchAll&searchNameText='\
+                 f'&searchAbbrevText={self.roi}&searchAbbrev=Search+abbreviation'
         else:
-            output['searchNameText'] = self.roi
-            output['searchAbbrevText'] = None
-            output['searchName'] = 'Search+name'
-        return output
+            data=f'searchOpt=starts&searchSide=searchAll&searchNameText={self.roi}'\
+                 '&searchName=Search+name&searchAbbrevText='
+        return data
 
     def __repr__(self):
         line = ['Input ROI = {}'.format(self.roi)]
